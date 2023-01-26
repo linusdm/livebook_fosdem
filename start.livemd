@@ -6,7 +6,7 @@ Mix.install([
 ])
 ```
 
-## Some title
+## Introduction
 
 [![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Flinusdm%2Flivebook_fosdem%2Fblob%2Fmain%2Fstart.livemd)
 

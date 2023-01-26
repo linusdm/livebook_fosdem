@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>FOSEM - Shorter feedback loops with Livebook</title>
+
+  <link rel="stylesheet" href="dist/reset.css">
+  <link rel="stylesheet" href="dist/reveal.css">
+  <link rel="stylesheet" href="dist/theme/solarized.css">
+
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <a href="https://revealjs.com">
+          <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
+        </a>
+        <h3>Shorter feedback loops with Livebook</h3>
+        <p>
+          <small>Linus De Meyere</small>
+        </p>
+        <p>
+          <small>
+            <a href="https://github.com/linusdm/livebook_fosdem">github.com/linusdm<span
+                style="color: var(--r-main-color); font-weight: bold">/livebook_fosdem</span></a></small>
+        </p>
+      </section>
+      <section>
+        <h2>Who knows Livebook?</h2>📕
+      </section>
+      <section>
+        <h2>Goals</h2>
+        <ul>
+          <li>Introduction to Livebook</li>
+          <li>How to get Livebook</li>
+          <li>Livebook stories from the trenches</li>
+          <li>Using Livebook to address riskiest parts first</li>
+        </ul>
+      </section>
+      <section>
+        <img src="assets/screenshot_first_livebook.png" style="">
+      </section>
+      <section>
+        <h3>Learning<h3>
+            <img src="assets/screenshot_learning.png" style="">
+      </section>
+      <section>
+        <h3>It's just markdown<h3>
+            <img src="assets/screenshot_github.png" style="">
+      </section>
+      <section>
+        <h3>It's just markdown<h3>
+            <img src="assets/screenshot_github_markdown.png" style="">
+      </section>
+      <section>
+        <ul>
+          <li>Automatically save to filesystem</li>
+          <li>Autocompletion</li>
+          <li>Inline documentation</li>
+          <li>Code formatting</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Reproducibility</h3>
+        <ul>
+          <li>No global mutable state</li>
+          <li>Sequential model for running code cells</li>
+          <li>Efficient change tracking - <span style="font-style: italic">stale</span> cells</li>
+          <li>TODO: package management/lockfile?</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Installation</h3>
+        <ul>
+          <li><a href="https://livebook.dev/#install">desktop application</a> (Windows and Mac)</li>
+          <li>Escript</li>
+          <li>docker image</li>
+        </ul>
+
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            mix escript.install hex livebook
+          </code>
+        </pre>
+
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            docker run -p 8080:8080 -p 8081:8081 --pull always livebook/livebook
+          </code>
+        </pre>
+
+      </section>
+      <section>
+        <h3>Starting</h3>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            livebook server
+          </code>
+        </pre>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            livebook server --help
+          </code>
+        </pre>
+      </section>
+
+      <section>
+        <blockquote>
+          &ldquo;Start with the riskiest parts of your development&rdquo;
+        </blockquote>
+        <p style="text-align: right">
+          <small>Every project manager</small>
+        </p>
+      </section>
+
+      <section>
+        <h3>Benefits</h3>
+        <ul>
+          <li>increase transparancy</li>
+          <li>document the process</li>
+          <li>livebooks as shareable deliverables</li>
+          <li>start in the middle</li>
+          <li>lower the barriers to entry (even for non-coders)</li>
+        </ul>
+      </section>
+
+      <section data-background-color="rgb(13, 24, 41)">
+        <a href="https://revealjs.com">
+          <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
+        </a>
+        <h3>No numbats here!</h3>
+      </section>
+    </div>
+  </div>
+
+  <script src="dist/reveal.js"></script>
+  <script src="plugin/notes/notes.js"></script>
+  <script src="plugin/markdown/markdown.js"></script>
+  <script src="plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+  </script>
+</body>
+
+</html>

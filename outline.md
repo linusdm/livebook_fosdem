@@ -1,0 +1,116 @@
+# Shorter feedback loops with Livebook
+
+- polsen naar familiaryity with Livebook (show of hands)
+  - who has heard of Livebook and knows more or less what it is
+  - who has worked with Livebook
+
+- goals
+  - intoduction to Livebook
+  - educate how you'd start Livebook
+  - show some practical examples in real life
+  - show how a tool like Livebook can help you prioritize and focus on the riskiest parts first
+- Introduction to Livebook
+  - similar to Jupyter notebooks
+  - explain concept of code cells
+  - point out the shipped learning materials
+  - reproducible: code cells (stale cells) & package management (inclusief lock file)
+    - setup met lockfile tonen?
+  - How to install (escript, desktop application for windows and mac)
+    - caveat: if installed as escript, it's tied to your elixir version, so if you update your elixir version through asdf, you'll have to reinstall
+    - how to start? `livebook server path/to/livebook.livemd`
+    - idee: livebook CLI options tonen?
+    - also docker images
+  - auto save on filesystem
+  - auto completion
+  - inline documentation
+  - code formatting
+  - lowers the barrier to entry (even for non-technical people)
+  - just markdown, renders nicely on GitHub, easy version control
+  - where to put them? usually alongside your normal code/mix project
+
+- Key thought: start with the riskiest parts first, and jump right into the middle of your problem domain. Livebook allows you to do just that: no need to set up a complete application or be content with a obscure script that runs only on your computer.
+
+- Some usecases
+  - introduction
+    - we're a small company doing custom (web) development
+    - important to have good DLX
+    - many projects at once (important to have good documentation)
+  - Explore an undocumented API
+    - captos
+    - collaborate, create shared understanding of the system
+    - situatie schetsen: undocumented, low-level TCP stuff, many edge-cases
+    - record fixtures? (zie presentatie Adam) Livebook -> real (test) code
+    - generate documentation from schema (template): real code -> Livebook documentation (Adam)
+    - document/point out bugs
+    - check fixes easily, without having to code in the application
+  - ETL pipeline
+    - Luisterpunt / fonar
+    - play with Flow (concurrent data processing)
+    - reference to book Concurrent data processing?
+    - show nice gif of kino/graph
+    - processes / concurrency are no problem 
+      - all BEAM goodies are available
+      - caveat: when process dies -> codecell dies too -> nolink option
+      - Kino.Process (voorbeeld tonen?)
+    - performance testing with benchee (has Livebook integration, nog niet gereleased)
+      - eventueel luisterpunt import benchmarken met twee verschillende batch sizes?
+      - screenshot laten zien
+  - Experiment in new problem domain (AI/ML)
+    - qmineral
+    - use Axon and Explorer
+    - massaging data begore it's being fed to a AI model (interpolate, historgrams, etc.)
+    - post processing (idem)
+    - show fancy graph (heatmap)
+      - super easy with vega lite integration
+    - result table tonen?
+    - uitleggen hoe ik dependencies op dingen op het filesysteem configureerbaar en expliciet probeer te maken (Kino.Input)
+  - Run one-off tasks in production
+    - Phoenix
+    - set up first admin user
+    - test bugsnag integration
+    - demo met live running application?
+      - one-page Phoenix app
+      - pub sub iets laten tonen
+      - qr code voor url (short url)
+    - setup with Fly.io
+      - zie qmineral / fly docs
+        - wireguard connection
+        - startup flags locally (mss zelfs via settings? proberen!)
+        - get private ip6
+        - get cookie
+        - runtime: attached node (laten zien?)
+- Run unit tests
+  - ExUnit.start(autorun: false)
+  - ExUnit.run()
+  - Doc tests
+- Typical lifecycle of code that is prototyped in a Livebook
+  - Move code to proper mix project
+    - show how to set up with `path:` in Mix.install()?
+    - lockfile
+  - ExUnit tests? Doc tests (since v0.8)
+- Secret management
+  - annoying: have to allow the secrets every time you restart Livebook session (is hier een oplossing voor?)
+  - saved in your browser local storage (fact check)
+  - alternatives: google secret management (zie Adam)
+- Little known about Livebook
+  - collaborate in real-time!
+  - dbg()
+
+- Kino
+  - uitleggen wat de relatie juist is met Livebook
+  - vegalite uitlegge?
+- shortcuts!
+  - run outdated codecells
+  - vim-style navigation (insert vs. navigation mode)
+  - `sp` show package search
+- Other usages of Livebook
+  - education (DockYard academy? nginx thingy?)
+  - ML/AI/Bumblebee stuff
+  - on embedded devices (nerves)
+- downsides
+  - It's not a real IDE
+    - Large code cells become unmanageable
+      - search and replace isn't practical
+    - Problem when redefining a Module (fact check, is mss niet helemaal waar)
+  - version management (remote node version should be compatible)
+- shout out naar contributors (screenshots github)
