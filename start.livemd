@@ -1,0 +1,34 @@
+# My first Livebook
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.8.1"}
+])
+```
+
+## Some title
+
+```elixir
+IO.puts("Hello from Livebook!")
+```
+
+Any markdown goes here
+
+## Reproducibility & change tracking
+
+```elixir
+# preceding but independent code cell
+x = 1
+```
+
+```elixir
+y = 2
+```
+
+```elixir
+z = 3
+```
+
+```elixir
+y + z
+```
