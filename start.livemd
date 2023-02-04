@@ -258,7 +258,7 @@ defmodule Christmas do
       iex> Christmas.santafy("no")
       "NO! NO! NO!"
       iex> Christmas.santafy("go")
-      "GO! GO! GO!"
+      "GO! GO! GO! GO!"
   """
   def santafy(some_input) do
     "#{some_input}!"
@@ -292,14 +292,3 @@ ExUnit.run()
 ```
 
 (adapted from this [blogpost](https://www.elixirnewbie.com/blog/writing-tests-in-livebook) by Brooklin Myers, which has some more good tips on how to run tests in Livebook)
-
-## dbg() in Livebook
-
-The `dbg()` macro is the new kid in town since Elixir `v0.14`. It can be [configured](https://hexdocs.pm/elixir/main/Kernel.html#dbg/2-configuring-the-debug-function) in specific contexts, which is what is used under the hood to give it superpowers in Livebook.
-
-```elixir
-"ho"
-|> Christmas.santafy()
-|> String.split()
-|> dbg()
-```
