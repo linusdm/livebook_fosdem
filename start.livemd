@@ -1,12 +1,17 @@
-# My first Livebook
+# FOSDEM - Shorter feedback loops with Livebook
 
 ```elixir
 Mix.install([
-  {:kino, "~> 0.8.1"}
+  {:kino, "~> 0.8"},
+  {:thousand_island, "~> 0.5"},
+  {:ecto, "~> 3.9"},
+  {:ecto_sql, "~> 3.9"},
+  {:postgrex, ">= 0.0.0"},
+  {:flow, "~> 1.2"}
 ])
 ```
 
-## Introduction
+## The basics
 
 [![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Flinusdm%2Flivebook_fosdem%2Fblob%2Fmain%2Fstart.livemd)
 
@@ -14,12 +19,14 @@ Mix.install([
 IO.puts("Hello from Livebook!")
 ```
 
-Any markdown goes here
+Can we do markdown?
+
+> yes we can!
 
 ## Reproducibility & change tracking
 
 ```elixir
-# preceding but independent code cell
+# no code cell depends on this
 x = 1
 ```
 
@@ -33,4 +40,266 @@ z = 3
 
 ```elixir
 y + z
+```
+
+<!-- livebook:{"branch_parent_index":1} -->
+
+## Branching sections
+
+You still have access to the environment where you branched off
+
+```elixir
+branch_state = z * 3
+```
+
+```mermaid
+flowchart TD;
+  subgraph Section #1
+    c1[Cell A];
+    c2[Cell B];
+    c1-->c2;
+  end
+  subgraph branch [Branch from #1]
+    c5[Cell E];
+    c6[Cell F];
+    c2-->c5;
+    c5-->c6;
+  end
+  subgraph Section #2
+    c3[Cell C];
+    c4[Cell D];
+    c2-->c3;
+    c3-->c4;
+  end
+  classDef red fill:#f96;
+  class branch red;
+```
+
+(adapted from [github.com/josevalim/livebooks](https://github.com/josevalim/livebooks/blob/main/talks/2022/12-live-splash.livemd#livebook-branched-sections))
+
+```elixir
+frame = Kino.Frame.new() |> Kino.render()
+
+for i <- Stream.interval(1000) do
+  Kino.Frame.render(frame, "never ending counter in a branch... #{i}")
+end
+```
+
+```elixir
+IO.puts("this will never print... (it's queued though)")
+```
+
+## Let's carry on
+
+```elixir
+"we're independent 💪 from that previous branching section"
+```
+
+But you don't get the bindings from that previous branching section...
+
+```elixir
+# uncomment next line to see variable `branch_state` does not exist
+# branch_state
+```
+
+## Livebook architecture
+
+Erlang VM processes and distribution everywhere
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR;
+  subgraph Clients
+    b1((Browser #1));
+    b2((Browser #2));
+  end
+
+  subgraph Livebook
+    l[Session];
+    b1--WebSockets-->l;
+    b2--WebSockets-->l;
+  end
+
+  subgraph Runtime
+    c[Code];
+    o1[Output #1];
+    o2[Output #2];
+    l--Erlang distribution-->c;
+    l--Erlang distribution-->o1;
+    l--Erlang distribution-->o2;
+  end
+```
+
+(adapted from [github.com/josevalim/livebooks](https://github.com/josevalim/livebooks/blob/main/talks/2022/12-live-splash.livemd#livebook-multiplayer-runtime))
+
+## Stub TCP server
+
+```elixir
+defmodule Echo do
+  use ThousandIsland.Handler
+
+  @impl true
+  def handle_data(data, socket, frame) do
+    Kino.Frame.render(frame, data)
+    ThousandIsland.Socket.send(socket, data)
+    {:continue, frame}
+  end
+end
+```
+
+Make sure the child processes are started under the Kino supervisor. The process is automatically terminated when the current process terminates or the current cell reevaluates.
+
+```elixir
+frame = Kino.Frame.new()
+
+{:ok, server_pid} =
+  Kino.start_child(
+    {ThousandIsland, port: 1234, handler_module: Echo, num_acceptors: 2, handler_options: frame}
+  )
+
+frame
+```
+
+Now you can `telnet localhost 1234` to test this TCP server.
+
+It's also interesting to inspect the supervision tree of the server. Notice the two acceptors (as configured above) and new processes are spawned under this tree, whenever a new connection is created.
+
+```elixir
+Kino.Process.sup_tree(server_pid)
+```
+
+## Using Ecto in Livebook
+
+```elixir
+repo_config = [username: "postgres", password: "postgres", database: "fosdem_demo"]
+```
+
+```elixir
+defmodule Repo do
+  use Ecto.Repo, adapter: Ecto.Adapters.Postgres, otp_app: :does_not_matter
+end
+```
+
+```elixir
+# emulates mix ecto.create
+Repo.__adapter__().storage_up(repo_config)
+```
+
+```elixir
+defmodule ExampleMigration do
+  use Ecto.Migration
+
+  def change do
+    create table(:some_table) do
+      add(:name, :string)
+      add(:at, :utc_datetime)
+    end
+
+    execute("INSERT INTO some_table(name, at) VALUES ('my fresh entry', NOW()) ", "")
+  end
+end
+```
+
+```elixir
+Kino.start_child({Repo, repo_config})
+```
+
+```elixir
+Ecto.Migrator.run(Repo, [{0, ExampleMigration}], :down, all: true, log: false)
+Ecto.Migrator.run(Repo, [{0, ExampleMigration}], :up, all: true, log: false)
+```
+
+```elixir
+import Ecto.Query, only: [from: 2]
+
+Ecto.Query.from(t in "some_table", select: [t.id, t.name, t.at])
+|> Repo.all()
+```
+
+## Fun with Flow
+
+```elixir
+Stream.interval(1000)
+|> Stream.take(3)
+# this is a slow producer, so we'll lower the max_demand
+|> Flow.from_enumerable(max_demand: 1)
+|> Flow.map(fn counter ->
+  Repo.insert_all("some_table", [[name: "entry #{counter}", at: NaiveDateTime.utc_now()]])
+end)
+|> Flow.stream(link: false)
+|> Stream.run()
+```
+
+```elixir
+import Ecto.Query, only: [from: 2]
+
+Ecto.Query.from(t in "some_table",
+  select: %{id: t.id, name: t.name, at: t.at},
+  order_by: [desc: t.at]
+)
+|> Repo.all()
+|> Kino.DataTable.new(keys: [:id, :name, :at])
+```
+
+## Tests in Livebook
+
+### Doctests
+
+<!-- livebook:{"break_markdown":true} -->
+
+Doctests are run automatically.
+
+```elixir
+defmodule Christmas do
+  @doc """
+      iex> Christmas.santafy("ho")
+      "HO! HO! HO!"
+      iex> Christmas.santafy("no")
+      "NO! NO! NO!"
+      iex> Christmas.santafy("go")
+      "GO! GO! GO!"
+  """
+  def santafy(some_input) do
+    "#{some_input}!"
+    |> String.upcase()
+    |> List.duplicate(3)
+    |> Enum.join(" ")
+  end
+end
+```
+
+### Regular ExUnit tests
+
+```elixir
+# don't run tests automatically
+ExUnit.start(auto_run: false)
+
+defmodule ChristmasTest do
+  use ExUnit.Case
+
+  test "should make everything jolly" do
+    assert Christmas.santafy("ho") == "HO! HO! HO!"
+  end
+
+  test "example failing test" do
+    assert Christmas.santafy("go") == "GO! GO! GO!"
+  end
+end
+
+# now actually run the tests manually
+ExUnit.run()
+```
+
+(adapted from this [blogpost](https://www.elixirnewbie.com/blog/writing-tests-in-livebook) by Brooklin Myers, which has some more good tips on how to run tests in Livebook)
+
+## dbg() in Livebook
+
+The `dbg()` macro is the new kid in town since Elixir `v0.14`. It can be [configured](https://hexdocs.pm/elixir/main/Kernel.html#dbg/2-configuring-the-debug-function) in specific contexts, which is what is used under the hood to give it superpowers in Livebook.
+
+```elixir
+"ho"
+|> Christmas.santafy()
+|> String.split()
+|> dbg()
 ```

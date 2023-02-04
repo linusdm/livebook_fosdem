@@ -19,9 +19,7 @@
   <div class="reveal">
     <div class="slides">
       <section>
-        <a href="https://revealjs.com">
-          <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
-        </a>
+        <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
         <h3>Shorter feedback loops with Livebook</h3>
         <p>
           <small>Linus De Meyere</small>
@@ -41,23 +39,26 @@
           <li>Introduction to Livebook</li>
           <li>How to get Livebook</li>
           <li>Livebook stories from the trenches</li>
-          <li>Using Livebook to address riskiest parts first</li>
+          <li>Starting in the middle with Livebook</li>
         </ul>
       </section>
       <section>
-        <img src="assets/screenshot_first_livebook.png" style="">
+        <img src="assets/screenshot_homescreen.png">
+      </section>
+      <section>
+        <img src="assets/screenshot_first_livebook.png">
       </section>
       <section>
         <h3>Learning<h3>
-            <img src="assets/screenshot_learning.png" style="">
+            <img src="assets/screenshot_learning.png">
       </section>
       <section>
         <h3>It's just markdown<h3>
-            <img src="assets/screenshot_github.png" style="">
+            <img src="assets/screenshot_github.png">
       </section>
       <section>
         <h3>It's just markdown<h3>
-            <img src="assets/screenshot_github_markdown.png" style="">
+            <img src="assets/screenshot_github_markdown.png">
       </section>
       <section>
         <ul>
@@ -73,15 +74,21 @@
           <li>No global mutable state</li>
           <li>Sequential model for running code cells</li>
           <li>Efficient change tracking - <span style="font-style: italic">stale</span> cells</li>
-          <li>TODO: package management/lockfile?</li>
+          <li>Branching sections</li>
+          <li>Package management in the notebook itself</li>
         </ul>
+      </section>
+      <section>
+        <h3>Erlang VM processes and distribution everywhere</h3>
+        <img src="assets/screenshot_architecture.png">
       </section>
       <section>
         <h3>Installation</h3>
         <ul>
-          <li><a href="https://livebook.dev/#install">desktop application</a> (Windows and Mac)</li>
+          <li><a href="https://livebook.dev/#install">Desktop application</a> (Windows and Mac)</li>
           <li>Escript</li>
-          <li>docker image</li>
+          <li>Docker image</li>
+          <li>In the cloud - somewhere remote</li>
         </ul>
 
         <pre data-id="code-animation">
@@ -99,6 +106,7 @@
       </section>
       <section>
         <h3>Starting</h3>
+        run the desktop app, or
         <pre data-id="code-animation">
           <code class="hljs bash" data-trim data-noescape>
             livebook server
@@ -106,9 +114,34 @@
         </pre>
         <pre data-id="code-animation">
           <code class="hljs bash" data-trim data-noescape>
+            livebook server new
+          </code>
+        </pre>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            livebook server path/to/directory/
+          </code>
+        </pre>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            livebook server path/to/some.livemd
+          </code>
+        </pre>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
+            livebook server https://example.com/some_public.livemd
+          </code>
+        </pre>
+        <pre data-id="code-animation">
+          <code class="hljs bash" data-trim data-noescape>
             livebook server --help
           </code>
         </pre>
+        <p style="text-align: right">
+          <small>
+            ^ lots of startup/deployment options here
+          </small>
+        </p>
       </section>
 
       <section>
@@ -123,18 +156,151 @@
       <section>
         <h3>Benefits</h3>
         <ul>
-          <li>increase transparancy</li>
-          <li>document the process</li>
-          <li>livebooks as shareable deliverables</li>
-          <li>start in the middle</li>
-          <li>lower the barriers to entry (even for non-coders)</li>
+          <li>Start in the middle</li>
+          <li>Increase transparancy</li>
+          <li>Document the process</li>
+          <li>Livebooks as shareable deliverables</li>
+          <li>Lower the barriers to entry (also for non-coders)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Context</h3>
+        <ul>
+          <li>Small software shop doing custom development</li>
+          <li>Many projects at the same time</li>
+          <li>Small teams (teams of two)</li>
+          <li>Important to have good DX</li>
+          <li>Good documentation really helps</li>
+          <li>Communication with clients is key</li>
+        </ul>
+      </section>
+
+      <section>
+        <h4>Case #1</h4>
+        <h3>Exploring an undocumented legacy API</h3>
+        <ul>
+          <li>Low level TCP protocol</li>
+          <li>Use <code>:gen_tcp</code> to send and receive messages</li>
+          <li>Stub out the server for end-to-end scenarios
+          </li>
+          <li>Great for documentation purposes (no meta info available)</li>
+          <li>Collaborate and create a shared understanding of the system</li>
+        </ul>
+      </section>
+
+      <section>
+        Documenting the various messages
+        <img src="assets/screenshot_scenario.png">
+        <p>
+          <small>
+            ^ pattern matching is awesome 💜
+          </small>
+        </p>
+      </section>
+
+      <section>
+        <h4>Case #1</h4>
+        <h3>Exploring an undocumented legacy API</h3>
+        <ul>
+          <li>Reproduce bugs (can be referenced in github issues)</li>
+          <li>Facilitates discussions on the right level of abstraction</li>
+          <li>Verify bugfixes, without having to integrate in a real application</li>
+          <li>idea: record test fixtures (thanks <a href="https://youtu.be/z4O7YnqqUI4">Adam Lancaster</a>)</li>
+          <li>idea: generate template for documentation</li>
+        </ul>
+      </section>
+
+      <section>
+        Mix project integration<br />
+        <p>
+          <small>
+            leans on <a href="https://hexdocs.pm/mix/1.14.3/Mix.html#install/2">Mix.install/2</a>
+          </small>
+        </p>
+        <img src="assets/screenshot_mix_integration.png" />
+      </section>
+
+
+      <section>
+        <h3>Typical lifecycle with Livebook</h3>
+        <ol>
+          <li>Experiment with code in Livebook</li>
+          <li>Maybe add tests</li>
+          <li>Add <code>:path</code> dependency on local mix project</li>
+          <li>Promote reusable code to local mix project</li>
+        </ol>
+      </section>
+
+
+      <section>
+        Manipulating stub server responses
+        <img src="assets/screenshot_mock_server.png">
+      </section>
+
+      <section>
+        Managing secrets
+        <img src="assets/screenshot_secrets.png">
+        <p>
+          <small>
+            ^ don't keep sensitive data in your notebooks
+          </small>
+        </p>
+      </section>
+
+      <section>
+        <h4>Case #2</h4>
+        <h3>Concurrent ETL pipeline</h3>
+        <ul>
+          <li>CSV → Postgres</li>
+          <li>Concurrent data processing in Livebook</li>
+          <li>The power of processes is available</li>
+          <li>Fun with <a href="https://hex.pm/packages/flow">Flow</a></li>
+          <li>Using Ecto from Livebook</li>
+        </ul>
+      </section>
+
+      <section>
+        <video data-autoplay src="assets/streaming_csv_to_db.mov"></video>
+      </section>
+
+      <section>
+        <h4>case #3</h4>
+        <h3>Connecting to an online environment</h3>
+        <ul>
+          <li>Remember, it's all erlang distribution behind the scenes</li>
+          <li>You need your node's name/sname and cookie</li>
+          <li>Great for one-off tasks</li>
+          <li>Setup your first admin user</li>
+          <li>Poke around your live system</li>
+          <li>Implement features without a UI yet</li>
+          <li>Remember, it's all live!</li>
+        </ul>
+      </section>
+
+      <section>
+        Change your runtime settings to "attached node"
+        <img src="assets/screenshot_attached_node.png">
+      </section>
+
+      <section>
+        <h3>Testing in Livebook</h3>
+        <ul>
+          <li>Doctests are executed automatically</li>
+          <li>You can write regular ExUnit test cases</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>dbg() in Livebook</h3>
+        <ul>
+          <li><code>dbg()</code> was recently added (elixir v1.14)</li>
+          <li>Manipulate your pipeline live</li>
         </ul>
       </section>
 
       <section data-background-color="rgb(13, 24, 41)">
-        <a href="https://revealjs.com">
-          <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
-        </a>
+        <img src="assets/livebook_logo.png" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;">
         <h3>No numbats here!</h3>
       </section>
     </div>
